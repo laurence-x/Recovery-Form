@@ -68,7 +68,8 @@ if (isset($_POST['email'])) {
             $rstp = $wa . "/#/res?h=" . $enth; // reset-link to be sent to v
 
             mail(
-                $em, "Reset password", "\nClick the password reset link:\n\n" . $rstp . "\n\n", $from
+                $em, "Reset password", "\nClick the password reset link:\n\n"
+                . $rstp . "\n\n", $from
             );
 
             // update db "unix" column, with fresh nt, for later comparison
