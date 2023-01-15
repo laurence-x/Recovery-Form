@@ -2,7 +2,13 @@
 
 require $_SERVER['DOCUMENT_ROOT'] . '/php/app.php';
 
-if (isset($_POST['email'])) {
+if (
+    array_key_exists('email', $_POST)
+    && isset($_POST['email'])
+    && !empty($_POST['email'])
+    && $_POST['email'] !== null
+    && $_POST['email'] !== ''
+) {
     $em = clean($_POST['email'], "lo");
     $em = filter_var($em, FILTER_SANITIZE_EMAIL);
 
@@ -19,8 +25,11 @@ if (isset($_POST['email'])) {
             $sv,
             $un,
             $pw,
-            $db, $sel = 'email',
-            $tn, $whr = 'email', $val = $ems
+            $db,
+            $sel = 'email',
+            $tn,
+            $whr = 'email',
+            $val = $ems
         );
 
         if (!$uex) {
@@ -55,7 +64,7 @@ if (isset($_POST['email'])) {
             $conn = mysqli_connect($sv, $un, $pw, $db);
             if (mysqli_connect_errno()) {
                 $ms = 'ERROR: No conn to db "'
-                . $db . '"-' . mysqli_connect_error();
+                    . $db . '"-' . mysqli_connect_error();
                 goto end;
             }
 
@@ -68,20 +77,24 @@ if (isset($_POST['email'])) {
             $rstp = $wa . "/#/res?h=" . $enth; // reset-link to be sent to v
 
             mail(
-                $em, "Reset password", "\nClick the password reset link:\n\n"
-                . $rstp . "\n\n", $from
+                $em,
+                "Reset password",
+                "\nClick the password reset link:\n\n" . $rstp . "\n\n",
+                $from
             );
 
             // update db "unix" column, with fresh nt, for later comparison
             mysqli_query(
-                $conn, "UPDATE " . $tn . " SET unix='"
-                . $nt . "' WHERE email ='" . $ems . "'"
+                $conn,
+                "UPDATE " . $tn . " SET unix='"
+                    . $nt . "' WHERE email ='" . $ems . "'"
             );
 
             // update the db "ulog" column, with the hashed random number
             mysqli_query(
-                $conn, "UPDATE " . $tn . " SET ulog='"
-                . $nth . "' WHERE email ='" . $ems . "'"
+                $conn,
+                "UPDATE " . $tn . " SET ulog='"
+                    . $nth . "' WHERE email ='" . $ems . "'"
             );
 
             /* set cookie with the encoded random number (not hashed)
@@ -90,7 +103,6 @@ if (isset($_POST['email'])) {
 
             $jres = "rs"; //~ all good > reset link sent
             goto end;
-
         }
     }
 }
